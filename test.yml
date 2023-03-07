@@ -1,0 +1,42 @@
+name: test_multi_visualizations
+suffix: ~  # add suffix to saved images
+scale: 4
+model_type: RefRestorationModel
+set_CUDA_VISIBLE_DEVICES: ~
+crop_border: ~  # crop border when evaluation. If None(~), crop the scale pixels
+gpu_ids: [1]
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: CUFED5
+    type: MultiRefCUFEDSet
+    dataroot_in: ./datasets/CUFED/CUFED5
+    dataroot_ref: ./datasets/CUFED/CUFED5
+  test_2:  # the 2st test dataset
+    name: LMR-test
+    type: MultiRefMegaDepthv3TestSet
+    data_folder: ../Datasets/MegaDepth_v3-test
+
+val_func: BasicSRValidation
+save_img: true
+
+#### network structures
+network_g:
+  type: MRAPARestorationNet
+  ngf: 64
+  n_blocks: 16
+  groups: 8
+network_map:
+  type: CorrespondenceGenerationArch
+  patch_size: 3
+  stride: 1
+  vgg_layer_list: ['relu1_1', 'relu2_1', 'relu3_1']
+  vgg_type: 'vgg19'
+network_extractor:
+  type: ContrasExtractorSep
+
+#### path
+path:
+  pretrain_model_g: ./experiments/pretrained_models/mrefsr_mse.pth
+  pretrain_model_feature_extractor: ./experiments/pretrained_models/feature_extraction.pth
+  strict_load: true
