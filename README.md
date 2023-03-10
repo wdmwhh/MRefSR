@@ -3,8 +3,8 @@
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 
 
-[[Paper (Coming soon)]()]
-[[ArXiv (Coming soon)]()]
+[[Paper](https://arxiv.org/pdf/2303.04970)]
+[[ArXiv](https://arxiv.org/abs/2303.04970)]
 [[Dataset Website (Coming soon)]()]
 
 ## Dependency
