@@ -25,3 +25,7 @@ conda env create -f environment.yml
 python mmsr/test.py -opt test.yml
 ```
 The results will be saved in ./result
+
+## Contact
+Feel free to contact me if there is any question. (Lin Zhang,  zhanglin2019@ia.ac.cn)
+
