@@ -1,0 +1,92 @@
+name: stage3_5ref_mrapa_restoration_mse_ps300_bs20
+model_type: MultiRefRestorationModel
+scale: 4
+crop_border: 4
+num_gpu: 4
+manual_seed: 10
+
+# datasets
+datasets:
+  train:
+    name: MegaDepth_v3_5ref
+    type: MultiRefMegaDepthDataset
+    dataroot_in: ./datasets/MegaDepth_v3_5ref
+    dataroot_ref: ./datasets/MegaDepth_v3_5ref
+    ann_file: ./datasets/meta_info_MegaDepth_v3_5ref.csv
+
+    gt_size: 300
+    use_flip: true
+    use_rot: true
+
+    use_shuffle: true
+    num_worker_per_gpu: 6  # per GPU
+    batch_size_per_gpu: 5
+    dataset_enlarge_ratio: 10
+    prefetch_mode: ~
+
+  val:
+    name: CUFED5
+    type: MultiRefCUFEDSet
+    dataroot_in: ./datasets/CUFED/CUFED5
+    dataroot_ref: ./datasets/CUFED/CUFED5
+
+# network structures
+network_g:
+  type: MRAPARestorationNet
+  ngf: 64
+  n_blocks: 16
+  groups: 8
+network_map:
+  type: CorrespondenceGenerationArch
+  patch_size: 3
+  stride: 1
+  vgg_layer_list: ['relu1_1', 'relu2_1', 'relu3_1']
+  vgg_type: 'vgg19'
+network_extractor:
+  type: ContrasMultiExtractorSep
+
+# path
+path:
+  pretrain_network_g: ./experiments/stage3_5ref_mrapa_restoration_mse_ps300_bs20/models/net_g_95000.pth
+  pretrain_network_d: ~
+  pretrain_network_feature_extractor: ./experiments/pretrained_models/feature_extraction_network.pth
+  strict_load: true
+  resume_state: ./experiments/stage3_5ref_mrapa_restoration_mse_ps300_bs20/training_states/95000.state
+
+# training settings: learning rate scheme, loss
+train:
+  lr_g: !!float 1e-4
+  lr_offset: !!float 1e-4
+  lr_relu2_offset: !!float 1e-5
+  lr_relu3_offset: !!float 1e-6
+  weight_decay_g: 0
+  beta_g: [0.9, 0.999]
+  lr_d: !!float 1e-4
+  weight_decay_d: 0
+  beta_d: [0.9, 0.999]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [300000, 400000]
+    gamma: 0.5
+
+  total_iter: 195000
+  warmup_iter: -1  # no warm up
+  net_g_pretrain_steps: 0
+
+  pixel_criterion: L1Loss
+  pixel_weight: !!float 1.0
+
+val:
+  val_freq: !!float 5e3
+  save_img: false
+
+# logger
+logger:
+  print_freq: 100
+  use_tb_logger: true
+  save_checkpoint_freq: !!float 5e3
+
+dist_params:
+  backend: nccl
+  port: 29741
